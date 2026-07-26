@@ -20,7 +20,7 @@ const Title = ({ text, color }) => (
   </div>
 );
 
-const TemplateOne = ({ resumeData = {}, containerWidth }) => {
+const TemplateOne = ({ resumeData = {}, colorPalette, containerWidth }) => {
   const {
     profileInfo = {},
     contactInfo = {},
@@ -48,12 +48,11 @@ const TemplateOne = ({ resumeData = {}, containerWidth }) => {
   return (
     <div
       ref={resumeRef}
-      className="p-6 bg-white text-gray-800"
+      className="p-6 bg-white font-sans text-gray-800"
       style={{
         transform: containerWidth > 0 ? `scale(${scale})` : undefined,
         transformOrigin: "top left",
-        width: containerWidth > 0 ? `${baseWidth}px` : "190mm",
-        maxWidth: containerWidth > 0 ? undefined : "190mm",
+        width: containerWidth > 0 ? `${baseWidth}px` : undefined,
       }}
     >
       {/* Header */}

@@ -44,12 +44,7 @@ const SignUp = ({ setCurrentPage }) => {
         navigate('/dashboard');
       }
     } catch (error) {
-      console.error('Register error:', error);
-      setError(
-        error.response?.data?.message ||
-          error.message ||
-          'Something went wrong. Please try again.'
-      );
+      setError(error.response?.data?.message || 'Something went wrong. Please try again.');
     }
   };
 

@@ -34,37 +34,6 @@
     page-break-after: always;
   }
 
-.a4-wrapper.pdf-fit {
-    font-size: 0.92rem;
-    line-height: 1.12;
-  }
-
-.a4-wrapper.pdf-fit * {
-    font-size: inherit !important;
-    line-height: inherit !important;
-  }
-
-.a4-wrapper.pdf-fit h1 {
-    font-size: 1.9rem !important;
-  }
-
-.a4-wrapper.pdf-fit h2,
-.a4-wrapper.pdf-fit .text-base {
-    font-size: 1rem !important;
-  }
-
-.a4-wrapper.pdf-fit h3,
-.a4-wrapper.pdf-fit .text-sm {
-    font-size: 0.85rem !important;
-  }
-
-.a4-wrapper.pdf-fit .text-xs,
-.a4-wrapper.pdf-fit p,
-.a4-wrapper.pdf-fit li,
-.a4-wrapper.pdf-fit span {
-    font-size: 0.75rem !important;
-  }
-
 /* Avoid breaking inside headings or custom section titles */
 .a4-wrapper h1,
 .a4-wrapper h2,

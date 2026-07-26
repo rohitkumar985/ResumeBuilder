@@ -18,7 +18,7 @@ const Navbar = () => {
 
             <span className="text-xl sm:text-2xl font-black bg-gradient-to-r from-violet-600 to-fuchsia-600 
             bg-clip-text text-transparent">
-              ResumeBuilder
+              ResumeXpert
             </span>
           </div>
         </Link>

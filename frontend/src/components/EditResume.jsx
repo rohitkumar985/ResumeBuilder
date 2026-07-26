@@ -605,25 +605,6 @@ const EditResume = () => {
       toast.error("Failed to generate PDF. Please try again.");
       return;
     }
-
-    const mmToPx = (mm) => (mm * 96) / 25.4;
-    const a4HeightPx = mmToPx(297);
-    const pageHeightPx = element.getBoundingClientRect().height;
-    const shouldFit = pageHeightPx > a4HeightPx;
-    let scaled = false;
-    const originalTransform = element.style.transform;
-    const originalTransformOrigin = element.style.transformOrigin;
-
-    if (shouldFit) {
-      element.classList.add("pdf-fit");
-      const adjustedHeight = element.getBoundingClientRect().height;
-      if (adjustedHeight > a4HeightPx) {
-        const factor = a4HeightPx / adjustedHeight;
-        element.style.transform = `scale(${factor})`;
-        element.style.transformOrigin = "top left";
-        scaled = true;
-      }
-    }
   
     setIsDownloading(true);
     setDownloadSuccess(false);
@@ -675,11 +656,6 @@ const EditResume = () => {
   
     } finally {
       document.getElementById("__pdf_color_override__")?.remove();
-      if (scaled) {
-        element.style.transform = originalTransform;
-        element.style.transformOrigin = originalTransformOrigin;
-      }
-      element.classList.remove("pdf-fit");
       setIsDownloading(false);
     }
   };

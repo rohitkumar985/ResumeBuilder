@@ -102,7 +102,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
                 </div>
                 {exp.technologies && (
                   <p className="bg-gray-100 text-[10px] font-mono px-1.5 py-0.5 rounded inline-block">
-                    {Array.isArray(exp.technologies) ? exp.technologies.join(", ") : exp.technologies}
+                    {exp.technologies}
                   </p>
                 )}
                 <ul className=" mt-0.5 text-[12px] text-gray-700">
@@ -133,7 +133,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
                 </div>
                 {proj.technologies && (
                   <p className="bg-gray-100 pb-2 text-[10px] font-mono px-1.5 py-0.5 rounded inline-block">
-                    {Array.isArray(proj.technologies) ? proj.technologies.join(", ") : proj.technologies}
+                    {proj.technologies}
                   </p>
                 )}
                 <p className="text-[11px] pb-2 text-gray-700 ">{proj.description}</p>

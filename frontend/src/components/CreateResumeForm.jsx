@@ -53,7 +53,7 @@ const CreateResumeForm = () => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-linear-to-r from-rose-500 to-pink-600 text-white font-black rounded-2xl hover:scale-105 hover:shadow-xl hover:shadow-rose-200 transition-all"
+          className="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black rounded-2xl hover:scale-105 hover:shadow-xl hover:shadow-rose-200 transition-all"
 >          Create Resume
         </button>
       </form>
