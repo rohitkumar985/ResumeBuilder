@@ -23,18 +23,18 @@ Prerequisites
 Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
 
 Getting Started
-1. Clone the my Repository
+1. Clone my Repository
    
 
 2. Backend Configuration:
-   bash
+   
    cd back-end
    npm install
    npm run server
    
 
 3. Frontend Configuration:
-   bash
+   
    cd front-end
    npm install
    npm run dev
@@ -44,4 +44,4 @@ Getting Started
 Experience the application in action: [ResumeBuilder Live](https://resumebuilder-frontend-egw9.onrender.com)
 
 💡 Developed By
-Developed by Rohit Kumar Pramanik 
+Rohit Kumar Pramanik 
