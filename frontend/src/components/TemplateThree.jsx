@@ -59,29 +59,28 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
       }}
     >
       {/* Header Section */}
-      <header className="px-8 pt-8 pb-4 mb-2">
+      <header className="px-8 pt-4 pb-2 mb-1">
         <div className="text-center">
-          <h1 className="text-3xl font-bold uppercase mb-3">{profileInfo.fullName}</h1>
+          <h1 className="text-3xl font-bold uppercase mb-1">{profileInfo.fullName}</h1>
 
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          <h2 className="text-lg font-semibold text-gray-700 mb-2">
             {profileInfo.designation}
           </h2>
-
         </div>
 
-        <p className="text-sm text-gray-700 leading-tight mb-4">
+        <p className="text-[12px] text-gray-700 leading-relaxed mb-2">
           {profileInfo.summary}
         </p>
       </header>
 
       {/* Two-Column Layout */}
-      <div className="grid grid-cols-12 gap-4 px-8 pb-8">
+      <div className="grid grid-cols-12 gap-4 px-8 pb-4">
         {/* LEFT SIDEBAR - 5 columns */}
-        <aside className="col-span-5 space-y-5 pr-4 border-r border-gray-300">
+        <aside className="col-span-5 space-y-3 pr-4 border-r border-gray-300">
           {/* Contact */}
           <section>
-            <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">CONTACT</h2>
-            <ul className="text-xs text-gray-700 space-y-2 pb-2">
+            <h2 className="text-sm font-bold uppercase text-gray-800 mb-1 tracking-wider">CONTACT</h2>
+            <ul className="text-xs text-gray-700 space-y-1.5 leading-relaxed pb-1">
               <li className="flex items-start">
                 <span className="font-semibold min-w-[65px]">Location:</span>
                 {contactInfo.location}
@@ -98,10 +97,10 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
                 </a>
               </li>
               {contactInfo.linkedin && (
-                <li className="flex items-start ">
+                <li className="flex items-start">
                   <span className="font-semibold min-w-[65px]">LinkedIn:</span>
                   <a href={contactInfo.linkedin}
-                    className="text-blue-600 hover:underline truncate pb-1"
+                    className="text-blue-600 hover:underline truncate pb-0.5"
                     title={contactInfo.linkedin}>
                     linkedin.com/in/{contactInfo.linkedin.split('/').pop()}
                   </a>
@@ -109,9 +108,9 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
               )}
               {contactInfo.github && (
                 <li className="flex items-start">
-                  <span className="font-semibold min-w-[65px] ">GitHub:</span>
+                  <span className="font-semibold min-w-[65px]">GitHub:</span>
                   <a href={contactInfo.github}
-                    className="text-blue-600 hover:underline pb-2 truncate"
+                    className="text-blue-600 hover:underline pb-1 truncate"
                     title={contactInfo.github}>
                     github.com/{contactInfo.github.split('/').pop()}
                   </a>
@@ -121,7 +120,7 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
                 <li className="flex items-start">
                   <span className="font-semibold min-w-[65px]">Portfolio:</span>
                   <a href={contactInfo.website}
-                    className="text-blue-600 hover:underline pb-2 truncate"
+                    className="text-blue-600 hover:underline pb-1 truncate"
                     title={contactInfo.website}>
                     {contactInfo.website.replace(/(^\w+:|^)\/\//, '')}
                   </a>
@@ -132,16 +131,16 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
 
           {/* Skills */}
           <section>
-            <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">SKILLS</h2>
+            <h2 className="text-sm font-bold uppercase text-gray-800 mb-1 tracking-wider">SKILLS</h2>
             {Object.entries(groupedSkills).map(([category, skillsList]) => (
               skillsList.length > 0 && (
-                <div key={category} className="mb-2">
+                <div key={category} className="mb-1.5">
                   {category !== "Other Skills" && (
-                    <h3 className="text-xs font-semibold italic mb-1">{category}:</h3>
+                    <h3 className="text-[10px] font-semibold italic mb-1">{category}:</h3>
                   )}
-                  <ul className="text-xs text-gray-700">
+                  <ul className="text-[10px] text-gray-700 leading-relaxed">
                     {skillsList.map((skill, idx) => (
-                      <li key={idx} className="mb-1">{skill}</li>
+                      <li key={idx} className="mb-0.5">{skill}</li>
                     ))}
                   </ul>
                 </div>
@@ -152,23 +151,23 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
           {/* Education */}
           {education.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-3 tracking-wider">EDUCATION</h2>
-              <div className="space-y-3">
+              <h2 className="text-sm font-bold uppercase text-gray-800 mb-1.5 tracking-wider">EDUCATION</h2>
+              <div className="space-y-1.5">
                 {education.map((edu, idx) => (
-                  <div key={idx} className="text-xs">
-                    <h3 className="font-bold pb-2">{edu.institution}</h3>
-                    <p className=" pb-2 ">{edu.degree}</p>
+                  <div key={idx} className="text-xs leading-relaxed">
+                    <h3 className="font-bold pb-0.5">{edu.institution}</h3>
+                    <p className="pb-0.5">{edu.degree}</p>
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          {/* Certifications */}
+          {/* Certifications  */}
           {certifications.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">CERTIFICATIONS</h2>
-              <ul className="text-xs text-gray-700 space-y-1">
+              <h2 className="text-sm font-bold uppercase text-gray-800 mb-1 tracking-wider">CERTIFICATIONS</h2>
+              <ul className="text-[11px] text-gray-700 space-y-1 leading-relaxed">
                 {certifications.map((cert, idx) => (
                   <li key={idx}>{cert.title} ({cert.year})</li>
                 ))}
@@ -179,8 +178,8 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
           {/* Interests */}
           {interests.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider">INTERESTS</h2>
-              <ul className="text-xs text-gray-700 space-y-1">
+              <h2 className="text-sm font-bold uppercase text-gray-800 mb-1 tracking-wider">INTERESTS</h2>
+              <ul className="text-[11px] text-gray-700 space-y-1 leading-relaxed">
                 {interests.map((interest, idx) => (
                   <li key={idx}>• {interest}</li>
                 ))}
@@ -190,17 +189,17 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
         </aside>
 
         {/* MAIN CONTENT - 7 columns */}
-        <main className="col-span-7 space-y-5 pl-4">
+        <main className="col-span-7 space-y-3 pl-4">
           {/* Work Experience */}
           {workExperience.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-3 tracking-wider border-b border-gray-400 pb-1">WORK EXPERIENCE</h2>
-              <div className="space-y-5">
+              <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider border-b border-gray-400 pb-1">WORK EXPERIENCE</h2>
+              <div className="space-y-3">
                 {workExperience.map((exp, idx) => (
-                  <div key={idx} className="text-xs">
+                  <div key={idx} className="text-xs leading-relaxed">
                     <div className="flex justify-between items-start mb-1">
                       <div>
-                        <h3 className="font-bold pb-2">{exp.role}</h3>
+                        <h3 className="font-bold pb-0.5">{exp.role}</h3>
                         <p className="italic">{exp.company}{exp.location && `, ${exp.location}`}</p>
                       </div>
                       {exp.startDate && exp.endDate && (
@@ -209,11 +208,10 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
                         </div>
                       )}
                     </div>
-                    <ul className="list-disc list-inside space-y-1 mt-1 pl-1">
+                    <ul className="list-disc list-inside space-y-1 mt-0.5 pl-1 leading-relaxed">
                       {exp.description?.split("\n").map((line, i) => (
                         <li key={i}>{line}</li>
                       ))}
-                      {!exp.description && idx === 0}
                     </ul>
                   </div>
                 ))}
@@ -224,10 +222,10 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
           {/* Projects Section */}
           {projects.length > 0 && (
             <section>
-              <h2 className="text-sm font-bold uppercase text-gray-800 mb-3 tracking-wider border-b border-gray-400 pb-1">PROJECTS</h2>
-              <div className="space-y-4">
+              <h2 className="text-sm font-bold uppercase text-gray-800 mb-2 tracking-wider border-b border-gray-400 pb-1">PROJECTS</h2>
+              <div className="space-y-2.5">
                 {projects.map((proj, idx) => (
-                  <div key={idx} className="text-xs">
+                  <div key={idx} className="text-xs leading-relaxed">
                     <div className="flex justify-between items-start">
                       <h3 className="font-bold">{proj.title}</h3>
                       {proj.startDate && proj.endDate && (
@@ -237,9 +235,9 @@ const TemplateThree = ({ resumeData = {}, containerWidth }) => {
                       )}
                     </div>
 
-                    <p className="mt-1 mb-1">{proj.description}</p>
+                    <p className="mt-0.5 mb-0.5 leading-relaxed">{proj.description}</p>
 
-                    <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex flex-wrap gap-2 mt-0.5">
                       {proj.github && (
                         <a href={proj.github}
                           className="text-blue-600 hover:underline flex items-center text-xs">

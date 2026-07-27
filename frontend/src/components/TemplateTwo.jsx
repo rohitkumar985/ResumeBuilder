@@ -38,8 +38,8 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
         transform: containerWidth > 0 ? `scale(${scale})` : undefined,
         transformOrigin: "top left",
         width: containerWidth > 0 ? `${baseWidth}px` : undefined,
-        height: "1123px",
-        overflow: "hidden",
+        minHeight: containerWidth > 0 ? "1123px" : undefined,
+        overflow: "visible",
       }}
     >
       {/* Header Section */}
@@ -49,7 +49,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
         <div className="flex flex-wrap justify-center gap-1 text-[11px] text-gray-700">
           {contactInfo.phone && <span>{contactInfo.phone}</span>}
           {contactInfo.email && (
-            <a href={`mailto:${contactInfo.email}`} className="hover:underline text-blue-600">
+            <a href={`mailto:${contactInfo.email}`} className="hover:underline text-blue-600 break-all">
               {contactInfo.email}
             </a>
           )}
@@ -88,12 +88,12 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
           <div className="space-y-2">
             {workExperience.map((exp, idx) => (
               <div key={idx} className="space-y-0.5">
-                <div className="flex justify-between items-start">
-                  <div>
+                <div className="flex justify-between items-start gap-3">
+                  <div className="min-w-0">
                     <h3 className="font-semibold text-[12px] pb-2 text-gray-800">{exp.role}</h3>
                     <p className="italic text-[11px] pb-2 text-gray-600">{exp.company}</p>
                   </div>
-                  <div className="text-[11px] text-right text-gray-600">
+                  <div className="text-[11px] text-right text-gray-600 shrink-0 max-w-[38%]">
                     <p className="italic">
                       {formatYearMonth(exp.startDate)} - {formatYearMonth(exp.endDate)}
                     </p>
@@ -123,10 +123,10 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
           <div className="space-y-2">
             {projects.map((proj, idx) => (
               <div key={idx} className="space-y-0.5">
-                <div className="flex justify-between items-start">
-                  <h3 className="font-semibold text-[12px] text-gray-800">{proj.title}</h3>
+                <div className="flex justify-between items-start gap-3">
+                  <h3 className="font-semibold text-[12px] text-gray-800 min-w-0">{proj.title}</h3>
                   {proj.link && (
-                    <a href={proj.link} className="text-blue-600 text-[11px] hover:underline">
+                    <a href={proj.link} className="text-blue-600 text-[11px] hover:underline break-all shrink-0 max-w-[38%]">
                       {proj.linkType || "Link"}
                     </a>
                   )}
@@ -161,16 +161,16 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
           <h2 className={sectionTitleClass}>Education</h2>
           <div className="space-y-1">
             {education.map((edu, idx) => (
-              <div key={idx} className="space-y-0.25">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-[12px] pb-2 text-gray-800">{edu.degree}</h3>
-                  <p className="italic text-[11px] pb-2 text-gray-600">
+              <div key={idx} className="space-y-0">
+                <div className="flex justify-between items-start gap-3">
+                  <h3 className="font-semibold text-[11px] pb-2 text-gray-800 min-w-0">{edu.degree}</h3>
+                  <p className="italic text-[10px] pb-2 text-gray-600 text-right shrink-0 max-w-[38%]">
                     {formatYearMonth(edu.startDate)} - {formatYearMonth(edu.endDate)}
                   </p>
                 </div>
-                <p className="italic text-[11px] text-gray-700">{edu.institution}</p>
+                <p className="italic text-[10px] text-gray-700 break-words">{edu.institution}</p>
                 {edu.courses && (
-                  <p className="text-[11px]">
+                  <p className="text-[9px]">
                     <strong>Courses:</strong> {edu.courses}
                   </p>
                 )}
@@ -194,12 +194,12 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
 
       {/* Certifications */}
       {certifications.length > 0 && (
-        <section className="mb-2">
+        <section className="mb-3">
           <h2 className={sectionTitleClass}>Certifications</h2>
-          <ul className="list-disc list-inside text-[11px] text-gray-700">
+          <ul className="list-disc list-outside pl-4 text-[10px] leading-snug text-gray-700 space-y-1">
             {certifications.map((cert, idx) => (
-              <li key={idx} className="leading-tight">
-                {cert.title} — {cert.issuer} ({cert.year})
+              <li key={idx} className="break-words py-0.2">
+                {cert.title} - {cert.issuer} ({cert.year})
               </li>
             ))}
           </ul>
@@ -213,7 +213,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
             {languages.length > 0 && (
               <div>
                 <h2 className={sectionTitleClass}>Languages</h2>
-                <ul className="flex flex-wrap gap-1 text-[11px] text-gray-700">
+                <ul className="flex flex-wrap gap-1 text-[10px] text-gray-700">
                   {languages.map((lang, idx) => (
                     <li key={idx} className="bg-gray-100 px-1.5 py-0.5 rounded-full">
                       {lang.name}
@@ -225,7 +225,7 @@ const TemplateTwo = ({ resumeData = {}, containerWidth }) => {
             {interests.length > 0 && interests.some(Boolean) && (
               <div>
                 <h2 className={sectionTitleClass}>Interests</h2>
-                <ul className="flex flex-wrap gap-1 text-[11px] text-gray-700">
+                <ul className="flex flex-wrap gap-1 text-[10px] text-gray-700">
                   {interests.filter(Boolean).map((int, idx) => (
                     <li key={idx} className="bg-gray-100 px-1.5 py-0.5 rounded-full">
                       {int}

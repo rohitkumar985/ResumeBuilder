@@ -8,7 +8,6 @@ import axiosInstance from "../utils/axiosInstance"
 import { API_PATHS } from "../utils/apiPaths"
 import StepProgress from "../components/StepProgress"
 
-import html2pdf from "html2pdf.js"
 import './A4.css'
 
 import {
@@ -22,10 +21,11 @@ import {
   WorkExperienceForm,
 } from "../components/Forms"
 import RenderResume from "../components/RenderResume"
-import { captureElementAsImage, dataURLtoFile } from "../utils/helper"
+import { dataURLtoFile } from "../utils/helper"
 import ThemeSelector from "../components/ThemeSelector"
 import Modal from "../components/Modal"
 import html2canvas from "html2canvas"
+import { jsPDF } from "jspdf"
 import { fixTailwindColors } from "../utils/colors"
 import {
   containerStyles,
@@ -52,6 +52,70 @@ const useResizeObserver = () => {
   return { ...size, ref };
 };
 
+const PDF_WIDTH_MM = 210;
+const PDF_HEIGHT_MM = 297;
+
+const isMostlyWhiteRow = (ctx, width, y, whiteThreshold = 245) => {
+  const data = ctx.getImageData(0, y, width, 1).data;
+  let coloredPixels = 0;
+
+  for (let x = 0; x < width; x += 4) {
+    const offset = x * 4;
+    const red = data[offset];
+    const green = data[offset + 1];
+    const blue = data[offset + 2];
+    const alpha = data[offset + 3];
+
+    if (alpha > 10 && (red < whiteThreshold || green < whiteThreshold || blue < whiteThreshold)) {
+      coloredPixels++;
+    }
+  }
+
+  return coloredPixels / Math.ceil(width / 4) < 0.01;
+};
+
+const findLastContentRow = (ctx, canvas) => {
+  for (let y = canvas.height - 1; y >= 0; y -= 2) {
+    if (!isMostlyWhiteRow(ctx, canvas.width, y, 250)) {
+      return Math.min(canvas.height, y + 16);
+    }
+  }
+
+  return canvas.height;
+};
+
+const findSafePageEnd = (ctx, canvas, startY, maxEndY) => {
+  if (maxEndY >= canvas.height) return canvas.height;
+
+  const sliceHeight = maxEndY - startY;
+  const searchTop = Math.max(startY + Math.floor(sliceHeight * 0.55), maxEndY - 280);
+  const searchBottom = Math.max(startY + 40, maxEndY - 20);
+  let blankRun = 0;
+
+  for (let y = searchBottom; y >= searchTop; y--) {
+    if (isMostlyWhiteRow(ctx, canvas.width, y)) {
+      blankRun++;
+      if (blankRun >= 10) {
+        return Math.min(maxEndY, y + blankRun);
+      }
+    } else {
+      blankRun = 0;
+    }
+  }
+
+  return maxEndY;
+};
+
+const isBlankSlice = (ctx, canvas, startY, endY) => {
+  for (let y = startY; y < endY; y += 12) {
+    if (!isMostlyWhiteRow(ctx, canvas.width, y, 250)) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 const EditResume = () => {
   const { resumeId } = useParams()
   const navigate = useNavigate()
@@ -63,6 +127,7 @@ const EditResume = () => {
   const [currentPage, setCurrentPage] = useState("profile-info")
   const [progress, setProgress] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [downloadSuccess, setDownloadSuccess] = useState(false)
   const [errorMsg, setErrorMsg] = useState("")
@@ -221,22 +286,24 @@ const EditResume = () => {
   }, [])
 
   // Validate Inputs
-  const validateAndNext = (e) => {
+  const validateAndNext = () => {
     const errors = []
 
     switch (currentPage) {
-      case "profile-info":
+      case "profile-info": {
         const { fullName, designation, summary } = resumeData.profileInfo
         if (!fullName.trim()) errors.push("Full Name is required")
         if (!designation.trim()) errors.push("Designation is required")
         if (!summary.trim()) errors.push("Summary is required")
         break
+      }
 
-      case "contact-info":
+      case "contact-info": {
         const { email, phone } = resumeData.contactInfo
         if (!email.trim() || !/^\S+@\S+\.\S+$/.test(email)) errors.push("Valid email is required.")
         if (!phone.trim() || !/^\d{10}$/.test(phone)) errors.push("Valid 10-digit phone number is required")
         break
+      }
 
       case "work-experience":
         resumeData.workExperience.forEach(({ company, role, startDate, endDate }, index) => {
@@ -587,7 +654,7 @@ const EditResume = () => {
 
   const handleDeleteResume = async () => {
     try {
-      setIsLoading(true)
+      setIsDeleting(true)
       await axiosInstance.delete(API_PATHS.RESUME.DELETE(resumeId))
       toast.success("Resume deleted successfully")
       navigate("/dashboard")
@@ -595,11 +662,13 @@ const EditResume = () => {
       console.error("Error deleting resume:", error)
       toast.error("Failed to delete resume")
     } finally {
-      setIsLoading(false)
+      setIsDeleting(false)
     }
   }
 
   const downloadPDF = async () => {
+    if (isDownloading) return;
+
     const element = resumeDownloadRef.current;
     if (!element) {
       toast.error("Failed to generate PDF. Please try again.");
@@ -608,8 +677,8 @@ const EditResume = () => {
   
     setIsDownloading(true);
     setDownloadSuccess(false);
-    const toastId = toast.loading("Generating PDF…");
-  
+    const toastId = toast.loading("Generating PDF...");
+
     const override = document.createElement("style");
     override.id = "__pdf_color_override__";
     override.textContent = `
@@ -620,40 +689,91 @@ const EditResume = () => {
       }
     `;
     document.head.appendChild(override);
-  
+
     try {
-      await html2pdf()
-        .set({
-          margin:       0,
-          filename:     `${resumeData.title.replace(/[^a-z0-9]/gi, "_")}.pdf`,
-          image:        { type: "png", quality: 1.0 },
-          html2canvas:  {
-            scale:           2,
-            useCORS:         true,
-            backgroundColor: "#FFFFFF",
-            logging:         false,
-            windowWidth:     element.scrollWidth,
-          },
-          jsPDF:        {
-            unit:       "mm",
-            format:     "a4",
-            orientation:"portrait",
-          },
-          pagebreak: {
-            mode: ['avoid-all', 'css', 'legacy']
+      await document.fonts?.ready;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#FFFFFF",
+        logging: false,
+        windowWidth: element.scrollWidth,
+      });
+
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      const pageCanvasHeight = Math.floor((PDF_HEIGHT_MM / PDF_WIDTH_MM) * canvas.width);
+      const lastContentRow = findLastContentRow(ctx, canvas);
+      const contentHeight = Math.max(Math.min(lastContentRow, canvas.height), pageCanvasHeight);
+      const printableHeight = contentHeight <= pageCanvasHeight * 1.03
+        ? pageCanvasHeight
+        : Math.min(contentHeight, canvas.height);
+      const pdf = new jsPDF({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+        compress: true,
+      });
+      const filename = `${resumeData.title.replace(/[^a-z0-9]/gi, "_")}.pdf`;
+
+      if (printableHeight <= pageCanvasHeight) {
+        const singlePageCanvas = document.createElement("canvas");
+        singlePageCanvas.width = canvas.width;
+        singlePageCanvas.height = Math.min(canvas.height, printableHeight);
+        const singlePageCtx = singlePageCanvas.getContext("2d");
+        singlePageCtx.fillStyle = "#FFFFFF";
+        singlePageCtx.fillRect(0, 0, singlePageCanvas.width, singlePageCanvas.height);
+        singlePageCtx.drawImage(
+          canvas,
+          0,
+          0,
+          canvas.width,
+          singlePageCanvas.height,
+          0,
+          0,
+          singlePageCanvas.width,
+          singlePageCanvas.height
+        );
+
+        const imageHeight = (singlePageCanvas.height * PDF_WIDTH_MM) / singlePageCanvas.width;
+        pdf.addImage(singlePageCanvas.toDataURL("image/png"), "PNG", 0, 0, PDF_WIDTH_MM, Math.min(imageHeight, PDF_HEIGHT_MM));
+      } else {
+        let renderedHeight = 0;
+        let isFirstPage = true;
+
+        while (renderedHeight < printableHeight) {
+          const maxEndY = Math.min(renderedHeight + pageCanvasHeight, printableHeight);
+          const pageEndY = findSafePageEnd(ctx, canvas, renderedHeight, maxEndY);
+          const sliceHeight = Math.max(1, pageEndY - renderedHeight);
+
+          if (!isBlankSlice(ctx, canvas, renderedHeight, pageEndY)) {
+            const pageCanvas = document.createElement("canvas");
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = sliceHeight;
+            pageCanvas
+              .getContext("2d")
+              .drawImage(canvas, 0, renderedHeight, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+            if (!isFirstPage) pdf.addPage();
+            const imageHeight = (sliceHeight * PDF_WIDTH_MM) / canvas.width;
+            pdf.addImage(pageCanvas.toDataURL("image/png"), "PNG", 0, 0, PDF_WIDTH_MM, imageHeight);
+            isFirstPage = false;
           }
-        })
-        .from(element)
-        .save();
+
+          renderedHeight = pageEndY > renderedHeight ? pageEndY : maxEndY;
+        }
+      }
+
+      pdf.save(filename);
   
       toast.success("PDF downloaded successfully!", { id: toastId });
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
-  
+
     } catch (err) {
       console.error("PDF error:", err);
       toast.error(`Failed to generate PDF: ${err.message}`, { id: toastId });
-  
+
     } finally {
       document.getElementById("__pdf_color_override__")?.remove();
       setIsDownloading(false);
@@ -693,6 +813,7 @@ const EditResume = () => {
             <button
               className={buttonStyles.theme}
               onClick={() => setOpenThemeSelector(true)}
+              disabled={isLoading || isDeleting || isDownloading}
             >
               <Palette size={16} />
               <span className="text-sm">Theme</span>
@@ -701,15 +822,16 @@ const EditResume = () => {
             <button
               className={buttonStyles.delete}
               onClick={handleDeleteResume}
-              disabled={isLoading}
+              disabled={isLoading || isDeleting || isDownloading}
             >
-              <Trash2 size={16} />
-              <span className="text-sm">Delete</span>
+              {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+              <span className="text-sm">{isDeleting ? "Deleting..." : "Delete"}</span>
             </button>
 
             <button
               className={buttonStyles.download}
               onClick={() => setOpenPreviewModal(true)}
+              disabled={isLoading || isDeleting || isDownloading}
             >
               <Download size={16} />
               <span className="text-sm">Preview</span>
@@ -731,7 +853,7 @@ const EditResume = () => {
                 <button
                   className={buttonStyles.back}
                   onClick={goBack}
-                  disabled={isLoading}
+                  disabled={isLoading || isDeleting || isDownloading}
                 >
                   <ArrowLeft size={16} />
                   Back
@@ -739,7 +861,7 @@ const EditResume = () => {
                 <button
                   className={buttonStyles.save}
                   onClick={uploadResumeImages}
-                  disabled={isLoading}
+                  disabled={isLoading || isDeleting || isDownloading}
                 >
                   {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                   {isLoading ? "Saving..." : "Save & Exit"}
@@ -747,7 +869,7 @@ const EditResume = () => {
                 <button
                   className={buttonStyles.next}
                   onClick={validateAndNext}
-                  disabled={isLoading}
+                  disabled={isLoading || isDeleting || isDownloading}
                 >
                   {currentPage === "additionalInfo" && <Download size={16} />}
                   {currentPage === "additionalInfo" ? "Preview & Download" : "Next"}
@@ -807,6 +929,7 @@ const EditResume = () => {
           )
         }
         onActionClick={downloadPDF}
+        actionBtnDisabled={isDownloading}
       >
         <div className="relative">
           <div className="text-center mb-4">
@@ -821,7 +944,7 @@ const EditResume = () => {
               ref={resumeDownloadRef}
               className="a4-wrapper"
             >
-              <div className="w-full h-full">
+              <div className="w-full">
               <RenderResume
                 key={`pdf-${resumeData?.template?.theme}`}
                 templateId={resumeData?.template?.theme || ""}
